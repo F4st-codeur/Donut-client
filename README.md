@@ -77,11 +77,13 @@ Ces deux bots travaillent sur le schéma chargé dans [Litematica](https://modri
 
 **SchemBuilder** construit en partant de la couche du bas, avec les blocs de ton inventaire. Il les ramène dans la hotbar si besoin et affiche « manque X » s'il lui manque un bloc. **Délai (ticks)** règle la vitesse de pose.
 
+**Orientation** : avant chaque pose, SchemBuilder simule la pose sous les 16 directions, en regardant devant, en haut ou en bas, sur chaque face d'appui et à deux hauteurs de clic. Il garde la combinaison qui donne la même orientation que dans le schéma : escaliers, bûches, fours, coffres, observateurs, pistons, hoppers, dalles haut/bas, trappes, leviers, boutons, panneaux, têtes, torches murales, etc. Il envoie ensuite cette rotation au serveur avant de poser. Les portes et les lits sont posés par leur moitié du bas ou leur pied, et l'autre moitié suit toute seule. Avec **Orientation stricte** (activé par défaut), un bloc impossible à orienter correctement est mis de côté au lieu d'être posé de travers.
+
 **Pathfinding** : pour se déplacer, les bots utilisent l'algorithme A*. Ils calculent un chemin qui contourne les obstacles : marcher (y compris en diagonale), monter d'un bloc en sautant, descendre jusqu'à 3 blocs. Ils évitent la lave, le feu, les cactus, les toiles d'araignée et les autres blocs dangereux. Si la cible est trop loin pour un seul calcul, le bot avance vers le point le plus proche trouvé puis recalcule depuis là.
 
 Limites actuelles :
 - le bot ne nage pas et ne casse ni ne pose de blocs pour se frayer un chemin. Si aucun chemin n'existe, il passe à un autre bloc et réessaie plus tard ;
-- l'orientation des blocs (escaliers, bûches, etc.) n'est pas encore gérée ;
+- les dalles doubles sont posées comme des dalles simples ;
 - n'active pas les deux bots en même temps ;
 - ouvrir un menu (inventaire, chat...) met le bot en pause.
 

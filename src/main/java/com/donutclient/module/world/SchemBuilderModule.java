@@ -1,22 +1,26 @@
 package com.donutclient.module.world;
 
+import com.donutclient.module.setting.BooleanSetting;
 import com.donutclient.module.setting.NumberSetting;
+import com.donutclient.module.world.bot.PlacementPlanner;
 import com.donutclient.module.world.bot.SchematicBotModule;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.screen.slot.SlotActionType;
+import net.minecraft.state.property.Properties;
 import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 
 /** Bot qui construit tout seul le schéma Litematica chargé, couche par couche en partant du bas. */
 public class SchemBuilderModule extends SchematicBotModule {
     private final NumberSetting delay = add(new NumberSetting("Délai (ticks)", 2, 0, 10, 1));
+    private final BooleanSetting strictOrientation = add(new BooleanSetting("Orientation stricte", true));
 
     private String missing;
 
@@ -37,6 +41,11 @@ public class SchemBuilderModule extends SchematicBotModule {
     @Override
     protected boolean isTarget(BlockPos pos, BlockState schematic, BlockState world) {
         if (schematic.isAir() || schematic == world || !world.isReplaceable()) return false;
+        // Moitié haute d'une porte, tête d'un lit... : posée automatiquement avec l'autre moitié.
+        if (schematic.contains(Properties.DOUBLE_BLOCK_HALF)
+                && schematic.get(Properties.DOUBLE_BLOCK_HALF).asString().equals("upper")) return false;
+        if (schematic.contains(Properties.BED_PART)
+                && schematic.get(Properties.BED_PART).asString().equals("head")) return false;
         // Fluides, feu, etc. : pas d'item à poser.
         return schematic.getBlock().asItem() != Items.AIR;
     }
@@ -60,21 +69,26 @@ public class SchemBuilderModule extends SchematicBotModule {
         }
         missing = null;
 
-        // Il faut un bloc voisin solide contre lequel poser.
-        for (Direction direction : Direction.values()) {
-            BlockPos neighbor = pos.offset(direction);
-            BlockState neighborState = mc.world.getBlockState(neighbor);
-            // Évite d'ouvrir un coffre, un four... au lieu de poser.
-            if (neighborState.isReplaceable() || neighborState.hasBlockEntity()) continue;
+        // Choisit la face cliquée et la rotation qui donnent la bonne orientation.
+        ItemStack stack = mc.player.getInventory().getStack(mc.player.getInventory().getSelectedSlot());
+        PlacementPlanner.Plan plan = PlacementPlanner.plan(pos, schematic, stack);
+        if (plan == null) return false;
+        if (!plan.exact() && strictOrientation.get()) return false;
 
-            Direction side = direction.getOpposite();
-            Vec3d hit = Vec3d.ofCenter(neighbor).add(Vec3d.of(side.getVector()).multiply(0.5));
-            lookAt(hit);
-            mc.interactionManager.interactBlock(mc.player, Hand.MAIN_HAND, new BlockHitResult(hit, side, neighbor, false));
-            mc.player.swingHand(Hand.MAIN_HAND);
-            return true;
+        float yaw = plan.yaw();
+        float pitch = plan.pitch();
+        if (plan.rotate()) {
+            // Le serveur utilise la rotation qu'il connaît : on la lui envoie avant de poser.
+            mc.player.setYaw(yaw);
+            mc.player.setPitch(pitch);
+            mc.player.networkHandler.sendPacket(new PlayerMoveC2SPacket.LookAndOnGround(
+                    yaw, pitch, mc.player.isOnGround(), mc.player.horizontalCollision));
+        } else {
+            lookAt(plan.hit().getPos());
         }
-        return false;
+        mc.interactionManager.interactBlock(mc.player, Hand.MAIN_HAND, plan.hit());
+        mc.player.swingHand(Hand.MAIN_HAND);
+        return true;
     }
 
     /** Met l'item en main, en le ramenant de l'inventaire vers la hotbar si besoin. */
