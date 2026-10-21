@@ -65,6 +65,10 @@ Limites actuelles :
 
 La configuration est sauvegardée dans `.minecraft/config/donutclient.json`.
 
+## Télécharger le .jar
+
+À chaque push, GitHub Actions compile le mod. Le `.jar` est publié dans les **Releases** du dépôt (build-1, build-2...) et dans l'onglet **Actions**, en artefact `donut-client`.
+
 ## Compiler et lancer
 
 Prérequis : un **JDK 21**.
