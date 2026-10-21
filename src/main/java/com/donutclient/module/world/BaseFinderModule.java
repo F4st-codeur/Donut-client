@@ -31,8 +31,6 @@ import java.util.Map;
  *     maximum (25) a donc forcément poussé après la génération du monde.</li>
  *     <li><b>Améthyste</b> : surligne les grappes d'améthyste (et en option les gros bourgeons).</li>
  * </ul>
- *
- * Réservé au solo.
  */
 public class BaseFinderModule extends Module {
     private static final int KELP_COLOR = 0x6000FF60;
@@ -57,7 +55,7 @@ public class BaseFinderModule extends Module {
     private int kelpCount, amethystCount;
 
     public BaseFinderModule() {
-        super("BaseFinder", "Surligne le kelp et l'améthyste qui ont poussé (= activité). Solo uniquement.", Category.WORLD);
+        super("BaseFinder", "Surligne le kelp et l'améthyste qui ont poussé (= activité).", Category.WORLD);
     }
 
     @Override
@@ -68,10 +66,7 @@ public class BaseFinderModule extends Module {
 
     @Override
     public void onTick() {
-        if (mc.world == null || !mc.isInSingleplayer()) {
-            results.clear();
-            return;
-        }
+        if (mc.world == null) return;
         int r = radius.get();
         if (r != scanOrderRadius) buildScanOrder(r);
 
@@ -175,7 +170,6 @@ public class BaseFinderModule extends Module {
 
     @Override
     public String getInfo() {
-        if (!mc.isInSingleplayer()) return "solo uniquement";
         return kelpCount + " kelp, " + amethystCount + " améthyste";
     }
 

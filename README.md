@@ -2,7 +2,7 @@
 
 Client Minecraft **PvP / utilitaire** basé sur [Fabric](https://fabricmc.net/), pour **Minecraft 1.21.11** (Java 21).
 
-Le mod contient des fonctionnalités « légitimes » (HUD, confort, rendu). Le module BaseFinder est réservé au solo : il se désactive automatiquement en multijoueur.
+Le mod contient surtout des fonctionnalités de confort (HUD, rendu). Le module BaseFinder fonctionne partout, mais sur un serveur, vérifie que les règles l'autorisent.
 
 ## Fonctionnalités
 
@@ -17,7 +17,7 @@ Le mod contient des fonctionnalités « légitimes » (HUD, confort, rendu). Le 
 | HUD | Keystrokes | Touches ZQSD/WASD, clics et saut (en bas à droite) |
 | Render | Fullbright | Luminosité maximale |
 | Render | Zoom | Maintiens **C** pour zoomer |
-| World | BaseFinder | Surligne le kelp qui a poussé et l'améthyste (solo uniquement) |
+| World | BaseFinder | Surligne le kelp qui a poussé et l'améthyste |
 | Movement | ToggleSprint | Sprint automatique |
 
 ### Commandes
