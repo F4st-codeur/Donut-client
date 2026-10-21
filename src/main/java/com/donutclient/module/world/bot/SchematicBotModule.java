@@ -19,12 +19,13 @@ import java.util.Map;
 /**
  * Base des bots qui travaillent sur le schéma Litematica chargé :
  * scanne les zones du schéma petit à petit, choisit la cible la plus proche,
- * marche jusqu'à elle (déplacement simple, sans pathfinding) puis agit dessus.
+ * marche jusqu'à elle en suivant un chemin calculé par {@link Pathfinder} puis agit dessus.
  */
 public abstract class SchematicBotModule extends Module {
     private static final int SCAN_BUDGET_PER_TICK = 40_000;
     private static final int MAX_TARGETS = 200_000;
-    private static final int STUCK_TICKS = 60;
+    private static final int STUCK_TICKS = 40;
+    private static final int MAX_PATH_FAILURES = 3;
     private static final int BLACKLIST_TICKS = 400;
     protected static final double REACH = 4.5;
 
@@ -38,6 +39,9 @@ public abstract class SchematicBotModule extends Module {
 
     private final Map<BlockPos, Integer> blacklist = new HashMap<>();
     private BlockPos walkTarget;
+    private List<BlockPos> path;
+    private int pathIndex;
+    private int pathFailures;
     private Vec3d lastPos;
     private int stuckTicks;
     private int cooldown;
@@ -72,6 +76,8 @@ public abstract class SchematicBotModule extends Module {
         targets = new ArrayList<>();
         pending = new ArrayList<>();
         blacklist.clear();
+        walkTarget = null;
+        path = null;
         scannedOnce = false;
         status = "";
     }
@@ -114,7 +120,10 @@ public abstract class SchematicBotModule extends Module {
         status = targets.size() + " restants";
 
         Vec3d eyes = mc.player.getEyePos();
-        if (eyes.distanceTo(Vec3d.ofCenter(target)) <= REACH) {
+        BlockPos feet = mc.player.getBlockPos();
+        // Si le joueur est dans le bloc cible (ex. : bloc à poser), il doit d'abord se décaler.
+        boolean insideTarget = target.equals(feet) || target.equals(feet.up());
+        if (!insideTarget && eyes.distanceTo(Vec3d.ofCenter(target)) <= REACH) {
             releaseMovement();
             stuckTicks = 0;
             if (cooldown > 0) {
@@ -124,7 +133,7 @@ public abstract class SchematicBotModule extends Module {
             if (act(target, schematic.getBlockState(target))) {
                 cooldown = actionDelay();
             } else {
-                blacklist.put(target, ticks + BLACKLIST_TICKS);
+                giveUp(target);
                 stopActing();
             }
         } else {
@@ -174,6 +183,11 @@ public abstract class SchematicBotModule extends Module {
     }
 
     private BlockPos pickTarget(World schematic) {
+        // On garde la même cible tant qu'elle est valide, pour ne pas recalculer le chemin sans arrêt.
+        if (walkTarget != null && !blacklist.containsKey(walkTarget)
+                && isTarget(walkTarget, schematic.getBlockState(walkTarget), mc.world.getBlockState(walkTarget))) {
+            return walkTarget;
+        }
         Vec3d eyes = mc.player.getEyePos();
         BlockPos best = null;
         double bestScore = Double.MAX_VALUE;
@@ -189,30 +203,78 @@ public abstract class SchematicBotModule extends Module {
         }
         if (best != null && !best.equals(walkTarget)) {
             walkTarget = best;
+            path = null;
+            pathFailures = 0;
             stuckTicks = 0;
         }
         return best;
     }
 
     private void walkTowards(BlockPos target) {
-        Vec3d center = Vec3d.ofCenter(target);
+        if (path == null) {
+            BlockPos feet = BlockPos.ofFloored(mc.player.getX(), mc.player.getY() + 0.2, mc.player.getZ());
+            path = Pathfinder.find(mc.world, feet, target, pos -> canReachFrom(pos, target));
+            pathIndex = 1;
+            if (path == null) {
+                giveUp(target);
+                return;
+            }
+        }
+        if (pathIndex >= path.size()) {
+            // Fin du chemin (partiel ou non) mais cible encore hors de portée : on recalcule.
+            path = null;
+            if (++pathFailures > MAX_PATH_FAILURES) giveUp(target);
+            return;
+        }
+
+        BlockPos node = path.get(pathIndex);
         Vec3d player = new Vec3d(mc.player.getX(), mc.player.getY(), mc.player.getZ());
-        double dx = center.x - player.x;
-        double dz = center.z - player.z;
+        double dx = node.getX() + 0.5 - player.x;
+        double dz = node.getZ() + 0.5 - player.z;
+        double horizontal = Math.sqrt(dx * dx + dz * dz);
+
+        if (horizontal < 0.35 && Math.abs(player.y - node.getY()) < 1.2) {
+            pathIndex++;
+            stuckTicks = 0;
+            return;
+        }
+        // Trop loin du chemin (chute, poussé...) : on recalcule.
+        if (horizontal > 3 || Math.abs(player.y - node.getY()) > 4) {
+            path = null;
+            return;
+        }
+
         mc.player.setYaw((float) (MathHelper.atan2(dz, dx) * MathHelper.DEGREES_PER_RADIAN) - 90f);
         mc.player.setPitch(0f);
         mc.options.forwardKey.setPressed(true);
-        mc.options.jumpKey.setPressed(mc.player.horizontalCollision && mc.player.isOnGround());
+        boolean climb = node.getY() > player.y + 0.5;
+        mc.options.jumpKey.setPressed(mc.player.isOnGround() && (climb || mc.player.horizontalCollision));
 
         if (lastPos != null && lastPos.squaredDistanceTo(player) < 0.0025) {
             if (++stuckTicks > STUCK_TICKS) {
-                blacklist.put(target, ticks + BLACKLIST_TICKS);
                 stuckTicks = 0;
+                path = null;
+                if (++pathFailures > MAX_PATH_FAILURES) giveUp(target);
             }
         } else {
             stuckTicks = 0;
         }
         lastPos = player;
+    }
+
+    /** Depuis cette position (pieds), la cible est-elle à portée sans être dans le joueur ? */
+    private static boolean canReachFrom(BlockPos feet, BlockPos target) {
+        if (feet.equals(target) || feet.up().equals(target)) return false;
+        Vec3d eyes = new Vec3d(feet.getX() + 0.5, feet.getY() + 1.62, feet.getZ() + 0.5);
+        return eyes.distanceTo(Vec3d.ofCenter(target)) <= REACH - 0.3;
+    }
+
+    private void giveUp(BlockPos target) {
+        blacklist.put(target, ticks + BLACKLIST_TICKS);
+        walkTarget = null;
+        path = null;
+        pathFailures = 0;
+        releaseMovement();
     }
 
     private void releaseMovement() {

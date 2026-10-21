@@ -77,8 +77,10 @@ Ces deux bots travaillent sur le schéma chargé dans [Litematica](https://modri
 
 **SchemBuilder** construit en partant de la couche du bas, avec les blocs de ton inventaire. Il les ramène dans la hotbar si besoin et affiche « manque X » s'il lui manque un bloc. **Délai (ticks)** règle la vitesse de pose.
 
+**Pathfinding** : pour se déplacer, les bots utilisent l'algorithme A*. Ils calculent un chemin qui contourne les obstacles : marcher (y compris en diagonale), monter d'un bloc en sautant, descendre jusqu'à 3 blocs. Ils évitent la lave, le feu, les cactus, les toiles d'araignée et les autres blocs dangereux. Si la cible est trop loin pour un seul calcul, le bot avance vers le point le plus proche trouvé puis recalcule depuis là.
+
 Limites actuelles :
-- le déplacement est simple : le bot marche tout droit et saute s'il bute contre un bloc, il n'a pas de vrai pathfinding. S'il est coincé, il passe à un autre bloc ;
+- le bot ne nage pas et ne casse ni ne pose de blocs pour se frayer un chemin. Si aucun chemin n'existe, il passe à un autre bloc et réessaie plus tard ;
 - l'orientation des blocs (escaliers, bûches, etc.) n'est pas encore gérée ;
 - n'active pas les deux bots en même temps ;
 - ouvrir un menu (inventaire, chat...) met le bot en pause.
