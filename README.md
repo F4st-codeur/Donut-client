@@ -1,8 +1,8 @@
 # Donut Client 🍩
 
-Client Minecraft **PvP / utilitaire** basé sur [Fabric](https://fabricmc.net/), pour **Minecraft 1.21.4** (Java 21).
+Client Minecraft **PvP / utilitaire** basé sur [Fabric](https://fabricmc.net/), pour **Minecraft 1.21.11** (Java 21).
 
-Le mod contient uniquement des fonctionnalités « légitimes » (HUD, confort, rendu). Il n'y a ni KillAura, ni Fly, ni X-Ray : ces modules te feraient bannir de la plupart des serveurs.
+Le mod contient des fonctionnalités « légitimes » (HUD, confort, rendu). Le module BaseFinder est réservé au solo : il se désactive automatiquement en multijoueur.
 
 ## Fonctionnalités
 
@@ -17,6 +17,7 @@ Le mod contient uniquement des fonctionnalités « légitimes » (HUD, confort, 
 | HUD | Keystrokes | Touches ZQSD/WASD, clics et saut (en bas à droite) |
 | Render | Fullbright | Luminosité maximale |
 | Render | Zoom | Maintiens **C** pour zoomer |
+| World | BaseFinder | Surligne le kelp qui a poussé et l'améthyste (solo uniquement) |
 | Movement | ToggleSprint | Sprint automatique |
 
 ### Commandes
@@ -24,8 +25,20 @@ Le mod contient uniquement des fonctionnalités « légitimes » (HUD, confort, 
 - **Shift droit** : ouvrir la ClickGUI (touche modifiable dans *Options → Contrôles*)
 - Dans la ClickGUI :
   - **clic gauche** sur un module pour l'activer ou le désactiver ;
-  - **clic droit** sur un module pour lui assigner une touche (Échap ou Suppr pour l'effacer) ;
+  - **clic droit** sur un module pour afficher ses réglages et sa touche ;
+  - sur un réglage : clic gauche pour l'activer, le désactiver ou augmenter sa valeur, clic droit pour la diminuer ;
+  - clic sur **Touche** puis appui sur une touche pour l'assigner (Échap ou Suppr pour l'effacer) ;
   - **glisser l'en-tête** d'un panneau pour le déplacer, **clic droit** dessus pour le replier.
+
+### BaseFinder
+
+Les plantes ne poussent que dans les chunks chargés, donc près d'un joueur. Plus elles ont grandi, plus quelqu'un est resté longtemps à côté.
+
+- **Kelp** (vert) : à la génération du monde, le haut d'un kelp a un âge de 20 à 23. Le module surligne toute la colonne de kelp dont le haut a atteint l'âge maximum (25), qui a donc forcément poussé après la génération. *Kelp min (blocs)* filtre les colonnes trop courtes.
+- **Amethyst** (violet) : surligne les grappes d'améthyste (stade final). *Gros bourgeons* (rose) ajoute aussi l'avant-dernier stade.
+- **Rayon (chunks)** : distance de scan autour de toi (2 à 16 chunks).
+
+Le nombre de résultats s'affiche dans l'ArrayList. Les surbrillances ne se voient pas à travers les blocs.
 
 La configuration est sauvegardée dans `.minecraft/config/donutclient.json`.
 
@@ -41,10 +54,10 @@ Prérequis : un **JDK 21**.
 ./gradlew build
 ```
 
-Le jar se trouve ensuite dans `build/libs/donut-client-1.0.0.jar`. Pour l'utiliser dans ton vrai jeu :
+Le jar se trouve ensuite dans `build/libs/donut-client-1.1.0.jar`. Pour l'utiliser dans ton vrai jeu :
 
-1. installe [Fabric Loader](https://fabricmc.net/use/installer/) pour la 1.21.4 ;
-2. place `donut-client-1.0.0.jar` et [Fabric API](https://modrinth.com/mod/fabric-api) dans `.minecraft/mods/` ;
+1. installe [Fabric Loader](https://fabricmc.net/use/installer/) pour la 1.21.11 ;
+2. place `donut-client-1.1.0.jar` et [Fabric API](https://modrinth.com/mod/fabric-api) dans `.minecraft/mods/` ;
 3. lance le profil Fabric.
 
 Pour IntelliJ IDEA, ouvre le dossier du projet : Gradle importe tout tout seul, puis utilise la configuration *Minecraft Client*.
@@ -58,7 +71,8 @@ src/main/java/com/donutclient/
 │   ├── Module.java           # Classe de base d'un module
 │   ├── TextHudModule.java    # Module HUD sous forme d'une ligne de texte
 │   ├── ModuleManager.java    # Enregistrement des modules et touches
-│   ├── hud/ render/ movement/
+│   ├── setting/              # Réglages (on/off, nombres)
+│   ├── hud/ render/ world/ movement/
 ├── gui/
 │   ├── ClickGuiScreen.java   # Interface de gestion des modules
 │   └── HudRenderer.java      # Dessin du HUD

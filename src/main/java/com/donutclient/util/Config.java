@@ -3,6 +3,7 @@ package com.donutclient.util;
 import com.donutclient.DonutClient;
 import com.donutclient.module.Module;
 import com.donutclient.module.ModuleManager;
+import com.donutclient.module.setting.Setting;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -33,6 +34,12 @@ public final class Config {
                 JsonObject entry = modules.getAsJsonObject(module.getName());
                 if (entry == null) continue;
                 if (entry.has("key")) module.setKey(entry.get("key").getAsInt());
+                JsonObject settings = entry.getAsJsonObject("settings");
+                if (settings != null) {
+                    for (Setting setting : module.getSettings()) {
+                        if (settings.has(setting.getName())) setting.fromJson(settings.get(setting.getName()));
+                    }
+                }
                 if (entry.has("enabled")) module.setEnabled(entry.get("enabled").getAsBoolean());
             }
         } catch (Exception e) {
@@ -47,6 +54,9 @@ public final class Config {
             JsonObject entry = new JsonObject();
             entry.addProperty("enabled", module.isEnabled());
             entry.addProperty("key", module.getKey());
+            JsonObject settings = new JsonObject();
+            for (Setting setting : module.getSettings()) settings.add(setting.getName(), setting.toJson());
+            entry.add("settings", settings);
             modules.add(module.getName(), entry);
         }
         JsonObject root = new JsonObject();

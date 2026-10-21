@@ -20,13 +20,13 @@ public class ArrayListModule extends Module {
         TextRenderer tr = mc.textRenderer;
         List<Module> active = DonutClient.getModuleManager().getModules().stream()
                 .filter(m -> m.isEnabled() && m.getCategory() != Category.HUD)
-                .sorted(Comparator.comparingInt((Module m) -> tr.getWidth(m.getName())).reversed())
+                .sorted(Comparator.comparingInt((Module m) -> tr.getWidth(label(m))).reversed())
                 .toList();
 
         int screenWidth = context.getScaledWindowWidth();
         int y = 2;
         for (int i = 0; i < active.size(); i++) {
-            String name = active.get(i).getName();
+            String name = label(active.get(i));
             int width = tr.getWidth(name);
             int x = screenWidth - width - 4;
             int color = ColorUtil.rainbow(i * 200L);
@@ -35,5 +35,10 @@ public class ArrayListModule extends Module {
             context.drawTextWithShadow(tr, name, x, y + 1, color);
             y += 11;
         }
+    }
+
+    private static String label(Module module) {
+        String info = module.getInfo();
+        return info == null ? module.getName() : module.getName() + " [" + info + "]";
     }
 }

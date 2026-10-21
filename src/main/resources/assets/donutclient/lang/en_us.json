@@ -1,5 +1,5 @@
 {
-  "category.donutclient": "Donut Client",
+  "key.category.donutclient.main": "Donut Client",
   "key.donutclient.gui": "Open ClickGUI",
   "key.donutclient.zoom": "Zoom"
 }

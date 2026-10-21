@@ -10,6 +10,8 @@ import com.donutclient.module.hud.WatermarkModule;
 import com.donutclient.module.movement.ToggleSprintModule;
 import com.donutclient.module.render.FullbrightModule;
 import com.donutclient.module.render.ZoomModule;
+import com.donutclient.module.world.BaseFinderModule;
+import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.InputUtil;
 import org.lwjgl.glfw.GLFW;
@@ -33,6 +35,8 @@ public class ModuleManager {
         // Render
         add(new FullbrightModule());
         add(new ZoomModule());
+        // World
+        add(new BaseFinderModule());
         // Movement
         add(new ToggleSprintModule());
     }
@@ -43,12 +47,10 @@ public class ModuleManager {
 
     public void onTick() {
         MinecraftClient mc = MinecraftClient.getInstance();
-        long handle = mc.getWindow().getHandle();
-
         for (Module module : modules) {
             int key = module.getKey();
             if (key == GLFW.GLFW_KEY_UNKNOWN) continue;
-            boolean down = mc.currentScreen == null && InputUtil.isKeyPressed(handle, key);
+            boolean down = mc.currentScreen == null && InputUtil.isKeyPressed(mc.getWindow(), key);
             if (down && !module.keyWasDown) module.toggle();
             module.keyWasDown = down;
         }
@@ -56,6 +58,13 @@ public class ModuleManager {
         if (mc.player == null) return;
         for (Module module : modules) {
             if (module.isEnabled()) module.onTick();
+        }
+    }
+
+    public void onWorldRender(WorldRenderContext context) {
+        if (MinecraftClient.getInstance().player == null) return;
+        for (Module module : modules) {
+            if (module.isEnabled()) module.onWorldRender(context);
         }
     }
 

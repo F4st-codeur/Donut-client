@@ -1,8 +1,14 @@
 package com.donutclient.module;
 
+import com.donutclient.module.setting.Setting;
+import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import org.lwjgl.glfw.GLFW;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public abstract class Module {
     protected static final MinecraftClient mc = MinecraftClient.getInstance();
@@ -10,6 +16,7 @@ public abstract class Module {
     private final String name;
     private final String description;
     private final Category category;
+    private final List<Setting> settings = new ArrayList<>();
     private boolean enabled;
     private int key = GLFW.GLFW_KEY_UNKNOWN;
     boolean keyWasDown;
@@ -18,6 +25,11 @@ public abstract class Module {
         this.name = name;
         this.description = description;
         this.category = category;
+    }
+
+    protected <T extends Setting> T add(T setting) {
+        settings.add(setting);
+        return setting;
     }
 
     public void toggle() {
@@ -45,6 +57,15 @@ public abstract class Module {
     public void onRender(DrawContext context) {
     }
 
+    /** Appelé pendant le rendu du monde quand le module est actif. */
+    public void onWorldRender(WorldRenderContext context) {
+    }
+
+    /** Info courte affichée à côté du nom dans l'ArrayList, ou {@code null}. */
+    public String getInfo() {
+        return null;
+    }
+
     public String getName() {
         return name;
     }
@@ -55,6 +76,10 @@ public abstract class Module {
 
     public Category getCategory() {
         return category;
+    }
+
+    public List<Setting> getSettings() {
+        return Collections.unmodifiableList(settings);
     }
 
     public boolean isEnabled() {
