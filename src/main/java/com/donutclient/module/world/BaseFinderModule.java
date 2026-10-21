@@ -4,11 +4,11 @@ import com.donutclient.module.Category;
 import com.donutclient.module.Module;
 import com.donutclient.module.setting.BooleanSetting;
 import com.donutclient.module.setting.NumberSetting;
+import com.donutclient.util.RenderUtil;
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
 import net.minecraft.block.AbstractPlantStemBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.client.render.RenderLayers;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.BlockPos;
@@ -44,6 +44,7 @@ public class BaseFinderModule extends Module {
     private final BooleanSetting buds = add(new BooleanSetting("Gros bourgeons", false));
     private final NumberSetting minKelpHeight = add(new NumberSetting("Kelp min (blocs)", 1, 1, 30, 1));
     private final NumberSetting radius = add(new NumberSetting("Rayon (chunks)", 6, 2, 16, 1));
+    private final BooleanSetting throughWalls = add(new BooleanSetting("À travers les murs", true));
 
     private record Highlight(int x, int minY, int z, int maxY, int color) {
     }
@@ -178,7 +179,7 @@ public class BaseFinderModule extends Module {
         if (results.isEmpty()) return;
         Vec3d camera = context.worldState().cameraRenderState.pos;
         MatrixStack matrices = context.matrices();
-        VertexConsumer buffer = context.consumers().getBuffer(RenderLayers.debugFilledBox());
+        VertexConsumer buffer = context.consumers().getBuffer(RenderUtil.boxLayer(throughWalls.get()));
 
         matrices.push();
         matrices.translate(-camera.x, -camera.y, -camera.z);
@@ -187,30 +188,9 @@ public class BaseFinderModule extends Module {
         for (List<Highlight> list : results.values()) {
             for (Highlight h : list) {
                 if (drawn++ >= MAX_RESULTS) break;
-                drawBox(buffer, matrix, h.x(), h.minY(), h.z(), h.x() + 1, h.maxY() + 1, h.z() + 1, h.color());
+                RenderUtil.drawBox(buffer, matrix, h.x(), h.minY(), h.z(), h.x() + 1, h.maxY() + 1, h.z() + 1, h.color());
             }
         }
         matrices.pop();
-    }
-
-    private static void drawBox(VertexConsumer b, Matrix4f m, float x1, float y1, float z1, float x2, float y2, float z2, int c) {
-        // Nord
-        b.vertex(m, x1, y1, z1).color(c); b.vertex(m, x2, y1, z1).color(c);
-        b.vertex(m, x2, y2, z1).color(c); b.vertex(m, x1, y2, z1).color(c);
-        // Sud
-        b.vertex(m, x2, y1, z2).color(c); b.vertex(m, x1, y1, z2).color(c);
-        b.vertex(m, x1, y2, z2).color(c); b.vertex(m, x2, y2, z2).color(c);
-        // Ouest
-        b.vertex(m, x1, y1, z2).color(c); b.vertex(m, x1, y1, z1).color(c);
-        b.vertex(m, x1, y2, z1).color(c); b.vertex(m, x1, y2, z2).color(c);
-        // Est
-        b.vertex(m, x2, y1, z1).color(c); b.vertex(m, x2, y1, z2).color(c);
-        b.vertex(m, x2, y2, z2).color(c); b.vertex(m, x2, y2, z1).color(c);
-        // Haut
-        b.vertex(m, x1, y2, z1).color(c); b.vertex(m, x2, y2, z1).color(c);
-        b.vertex(m, x2, y2, z2).color(c); b.vertex(m, x1, y2, z2).color(c);
-        // Bas
-        b.vertex(m, x1, y1, z2).color(c); b.vertex(m, x2, y1, z2).color(c);
-        b.vertex(m, x2, y1, z1).color(c); b.vertex(m, x1, y1, z1).color(c);
     }
 }

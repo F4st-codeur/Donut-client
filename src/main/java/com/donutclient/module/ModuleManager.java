@@ -8,7 +8,9 @@ import com.donutclient.module.hud.KeystrokesModule;
 import com.donutclient.module.hud.PingModule;
 import com.donutclient.module.hud.WatermarkModule;
 import com.donutclient.module.movement.ToggleSprintModule;
+import com.donutclient.module.render.ChestEspModule;
 import com.donutclient.module.render.FullbrightModule;
+import com.donutclient.module.render.PlayerEspModule;
 import com.donutclient.module.render.ZoomModule;
 import com.donutclient.module.world.BaseFinderModule;
 import com.donutclient.module.world.SchemBuilderModule;
@@ -37,6 +39,8 @@ public class ModuleManager {
         // Render
         add(new FullbrightModule());
         add(new ZoomModule());
+        add(new ChestEspModule());
+        add(new PlayerEspModule());
         // World
         add(new BaseFinderModule());
         add(new SchemDiggerModule());

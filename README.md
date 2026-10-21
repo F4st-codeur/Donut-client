@@ -17,6 +17,8 @@ Le mod contient surtout des fonctionnalités de confort (HUD, rendu). Le module 
 | HUD | Keystrokes | Touches ZQSD/WASD, clics et saut (en bas à droite) |
 | Render | Fullbright | Luminosité maximale |
 | Render | Zoom | Maintiens **C** pour zoomer |
+| Render | ChestESP | Surligne coffres, ender chests, shulkers, barils (à travers les murs) |
+| Render | PlayerESP | Montre les autres joueurs à travers les murs (contour et/ou boîte) |
 | World | BaseFinder | Surligne le kelp qui a poussé et l'améthyste |
 | World | SchemDigger | Bot qui mine tout seul le schéma Litematica chargé |
 | World | SchemBuilder | Bot qui construit tout seul le schéma Litematica chargé |
@@ -31,6 +33,24 @@ Le mod contient surtout des fonctionnalités de confort (HUD, rendu). Le module 
   - sur un réglage : clic gauche pour l'activer, le désactiver ou augmenter sa valeur, clic droit pour la diminuer ;
   - clic sur **Touche** puis appui sur une touche pour l'assigner (Échap ou Suppr pour l'effacer) ;
   - **glisser l'en-tête** d'un panneau pour le déplacer, **clic droit** dessus pour le replier.
+
+### ChestESP et PlayerESP
+
+**ChestESP** surligne les conteneurs chargés autour de toi, chacun avec sa couleur :
+- coffres en orange, coffres piégés en rouge ;
+- ender chests en violet ;
+- shulkers en rose ;
+- barils en marron ;
+- en option, fours, hoppers et dispensers en gris.
+
+Chaque type s'active séparément dans les réglages, et l'ArrayList affiche le nombre trouvé.
+
+**PlayerESP** montre les autres joueurs. Réglage **Mode** :
+- *Contour* : contour lumineux rouge, comme l'effet Glowing ;
+- *Boîte* : boîte rouge translucide ;
+- *Les deux*.
+
+Le réglage **À travers les murs** est aussi disponible dans BaseFinder, ChestESP et PlayerESP.
 
 ### BaseFinder
 
