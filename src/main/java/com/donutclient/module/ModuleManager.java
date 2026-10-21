@@ -7,6 +7,7 @@ import com.donutclient.module.hud.FpsModule;
 import com.donutclient.module.hud.KeystrokesModule;
 import com.donutclient.module.hud.PingModule;
 import com.donutclient.module.hud.WatermarkModule;
+import com.donutclient.module.misc.FakeMoneyModule;
 import com.donutclient.module.movement.ToggleSprintModule;
 import com.donutclient.module.render.ChestEspModule;
 import com.donutclient.module.render.FullbrightModule;
@@ -47,6 +48,8 @@ public class ModuleManager {
         add(new SchemBuilderModule());
         // Movement
         add(new ToggleSprintModule());
+        // Misc
+        add(new FakeMoneyModule());
     }
 
     private void add(Module module) {

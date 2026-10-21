@@ -4,7 +4,8 @@ public enum Category {
     HUD("HUD"),
     RENDER("Render"),
     WORLD("World"),
-    MOVEMENT("Movement");
+    MOVEMENT("Movement"),
+    MISC("Misc");
 
     private final String displayName;
 

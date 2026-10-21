@@ -23,6 +23,7 @@ Le mod contient surtout des fonctionnalités de confort (HUD, rendu). Le module 
 | World | SchemDigger | Bot qui mine tout seul le schéma Litematica chargé |
 | World | SchemBuilder | Bot qui construit tout seul le schéma Litematica chargé |
 | Movement | ToggleSprint | Sprint automatique |
+| Misc | FakeMoney | Affiche un faux solde sur ton écran (visuel uniquement) |
 
 ### Commandes
 
@@ -51,6 +52,20 @@ Chaque type s'active séparément dans les réglages, et l'ArrayList affiche le 
 - *Les deux*.
 
 Le réglage **À travers les murs** est aussi disponible dans BaseFinder, ChestESP et PlayerESP.
+
+### FakeMoney
+
+FakeMoney remplace les montants en `$` affichés sur **ton** écran (scoreboard, tab, textes du HUD) par un faux montant. Exemple : `Money: $1.25M` devient `Money: $100M`.
+
+C'est **uniquement visuel** : ton vrai solde ne change pas, le serveur et les autres joueurs voient toujours la vraie valeur, et l'argent n'est pas utilisable.
+
+Réglages :
+- **Montant** et **Unité** (aucune, K, M, B, T) : la valeur affichée ;
+- **Où** :
+  - *Lignes argent* : seulement les lignes qui contiennent « money », « balance », « argent », « solde » ou « coins » ;
+  - *Tous les $* : tous les montants en `$`.
+
+Les messages du chat ne sont pas modifiés.
 
 ### BaseFinder
 
