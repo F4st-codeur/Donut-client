@@ -11,6 +11,8 @@ import com.donutclient.module.movement.ToggleSprintModule;
 import com.donutclient.module.render.FullbrightModule;
 import com.donutclient.module.render.ZoomModule;
 import com.donutclient.module.world.BaseFinderModule;
+import com.donutclient.module.world.SchemBuilderModule;
+import com.donutclient.module.world.SchemDiggerModule;
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.InputUtil;
@@ -37,6 +39,8 @@ public class ModuleManager {
         add(new ZoomModule());
         // World
         add(new BaseFinderModule());
+        add(new SchemDiggerModule());
+        add(new SchemBuilderModule());
         // Movement
         add(new ToggleSprintModule());
     }

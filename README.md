@@ -18,6 +18,8 @@ Le mod contient surtout des fonctionnalités de confort (HUD, rendu). Le module 
 | Render | Fullbright | Luminosité maximale |
 | Render | Zoom | Maintiens **C** pour zoomer |
 | World | BaseFinder | Surligne le kelp qui a poussé et l'améthyste |
+| World | SchemDigger | Bot qui mine tout seul le schéma Litematica chargé |
+| World | SchemBuilder | Bot qui construit tout seul le schéma Litematica chargé |
 | Movement | ToggleSprint | Sprint automatique |
 
 ### Commandes
@@ -39,6 +41,27 @@ Les plantes ne poussent que dans les chunks chargés, donc près d'un joueur. Pl
 - **Rayon (chunks)** : distance de scan autour de toi (2 à 16 chunks).
 
 Le nombre de résultats s'affiche dans l'ArrayList. Les surbrillances ne se voient pas à travers les blocs.
+
+### SchemDigger et SchemBuilder
+
+Ces deux bots travaillent sur le schéma chargé dans [Litematica](https://modrinth.com/mod/litematica) (avec MaLiLib). Il faut installer Litematica pour la 1.21.11 dans `mods/`. Sans lui, les modules affichent « Litematica absent ».
+
+1. Charge et place ton schéma avec Litematica, comme d'habitude.
+2. Active **SchemDigger** ou **SchemBuilder** dans la ClickGUI.
+3. Le bot scanne la zone du schéma, marche jusqu'au bloc le plus proche et agit. L'ArrayList affiche le nombre de blocs restants.
+
+**SchemDigger** mine en partant de la couche du haut. Il choisit tout seul le meilleur outil de la hotbar et évite les blocs qui touchent de la lave. Réglage **Mode** :
+- *Différents* : mine les blocs qui ne correspondent pas au schéma (pour creuser une forme ou préparer le terrain) ;
+- *Identiques* : mine les blocs qui correspondent au schéma (pour démonter un build) ;
+- *Tout* : vide toute la zone.
+
+**SchemBuilder** construit en partant de la couche du bas, avec les blocs de ton inventaire. Il les ramène dans la hotbar si besoin et affiche « manque X » s'il lui manque un bloc. **Délai (ticks)** règle la vitesse de pose.
+
+Limites actuelles :
+- le déplacement est simple : le bot marche tout droit et saute s'il bute contre un bloc, il n'a pas de vrai pathfinding. S'il est coincé, il passe à un autre bloc ;
+- l'orientation des blocs (escaliers, bûches, etc.) n'est pas encore gérée ;
+- n'active pas les deux bots en même temps ;
+- ouvrir un menu (inventaire, chat...) met le bot en pause.
 
 La configuration est sauvegardée dans `.minecraft/config/donutclient.json`.
 
@@ -71,13 +94,13 @@ src/main/java/com/donutclient/
 │   ├── Module.java           # Classe de base d'un module
 │   ├── TextHudModule.java    # Module HUD sous forme d'une ligne de texte
 │   ├── ModuleManager.java    # Enregistrement des modules et touches
-│   ├── setting/              # Réglages (on/off, nombres)
+│   ├── setting/              # Réglages (on/off, nombres, modes)
 │   ├── hud/ render/ world/ movement/
 ├── gui/
 │   ├── ClickGuiScreen.java   # Interface de gestion des modules
 │   └── HudRenderer.java      # Dessin du HUD
 ├── mixin/                    # Injections dans le code de Minecraft
-└── util/                     # Config, CPS, couleurs
+└── util/                     # Config, CPS, couleurs, pont Litematica
 ```
 
 ### Ajouter un module
