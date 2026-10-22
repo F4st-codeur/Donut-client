@@ -97,7 +97,7 @@ Ces deux bots travaillent sur le schéma chargé dans [Litematica](https://modri
 **Comportement humain** : les deux bots essaient d'agir comme un vrai joueur.
 - La caméra tourne **progressivement**, vite au début puis plus lentement, avec de petites imprécisions et des pas qui respectent la sensibilité de la souris. Pas de rotation instantanée ni de paquet de rotation envoyé à part : le bot n'agit qu'une fois que le serveur le voit viser le bon endroit.
 - Il ne mine ou ne pose que sur une face qu'il **voit** (rien entre ses yeux et le bloc). Il vise un point au hasard de la face, plutôt vers le milieu, et pas toujours au bout de sa portée.
-- En marchant, il tourne vers le chemin et regarde un peu vers le sol ; il n'avance que s'il regarde à peu près dans la bonne direction.
+- **Déplacement** : il utilise les touches comme au clavier (Z seul, Z+Q / Z+D en diagonale, pas de côté quand il est tout près) pendant que la caméra tourne, au lieu de pivoter d'un coup. Il coupe les virages sur le plat au lieu de passer par le centre de chaque bloc, regarde un peu en avant sur le chemin et vers le sol (l'inclinaison varie doucement), sprinte dans les longues lignes droites et ralentit à l'approche, et ne saute qu'au pied d'une marche.
 - Il prend un **temps de réaction** avant chaque bloc (parfois plus long), attend un peu après avoir changé d'outil ou de slot, et prend le temps « d'ouvrir l'inventaire » avant d'aller chercher un bloc hors de la hotbar, puis le referme.
 - L'ordre des blocs varie un peu (toujours couche par couche).
 - **Pauses** (activé par défaut) : de temps en temps, une pause de 1,5 à 6 secondes.

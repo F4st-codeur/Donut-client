@@ -285,12 +285,15 @@ public abstract class SchematicBotModule extends Module {
         }
 
         BlockPos node = path.get(pathIndex);
+        BlockPos next = pathIndex + 1 < path.size() ? path.get(pathIndex + 1) : null;
         Vec3d player = new Vec3d(mc.player.getX(), mc.player.getY(), mc.player.getZ());
         double dx = node.getX() + 0.5 - player.x;
         double dz = node.getZ() + 0.5 - player.z;
         double horizontal = Math.sqrt(dx * dx + dz * dz);
 
-        if (horizontal < 0.35 && Math.abs(player.y - node.getY()) < 1.2) {
+        // Un joueur ne passe pas par le centre de chaque bloc : sur du plat, il coupe les virages.
+        boolean flatNext = next != null && next.getY() == node.getY() && node.getY() == mc.player.getBlockY();
+        if (horizontal < (flatNext ? 0.7 : 0.35) && Math.abs(player.y - node.getY()) < 1.2) {
             pathIndex++;
             stuckTicks = 0;
             return;
@@ -301,15 +304,36 @@ public abstract class SchematicBotModule extends Module {
             return;
         }
 
-        // Tourne vers le prochain point du chemin et n'avance que si on regarde à peu près dans sa direction.
-        float yaw = (float) (MathHelper.atan2(dz, dx) * MathHelper.DEGREES_PER_RADIAN) - 90f;
-        aim.turnTowards(yaw, walkPitch, aimSpeed() * 1.5f, 3f);
-        boolean facing = Math.abs(MathHelper.wrapDegrees(yaw - mc.player.getYaw())) < 50f;
-        mc.options.forwardKey.setPressed(facing);
-        boolean climb = node.getY() > player.y + 0.5;
-        mc.options.jumpKey.setPressed(mc.player.isOnGround() && (climb || mc.player.horizontalCollision));
+        // Le regard part un peu en avant sur le chemin, l'inclinaison bouge doucement.
+        float moveYaw = (float) (MathHelper.atan2(dz, dx) * MathHelper.DEGREES_PER_RADIAN) - 90f;
+        float lookYaw = moveYaw;
+        if (next != null && horizontal < 1.5) {
+            float nextYaw = (float) (MathHelper.atan2(next.getZ() + 0.5 - player.z, next.getX() + 0.5 - player.x)
+                    * MathHelper.DEGREES_PER_RADIAN) - 90f;
+            lookYaw = moveYaw + MathHelper.wrapDegrees(nextYaw - moveYaw) * (float) (1.0 - horizontal / 1.5);
+        }
+        walkPitch = MathHelper.clamp(walkPitch + (float) random.nextGaussian() * 0.4f, 0f, 30f);
+        aim.turnTowards(lookYaw, walkPitch, aimSpeed() * 1.5f, 3f);
 
-        if (facing && lastPos != null && lastPos.squaredDistanceTo(player) < 0.0025) {
+        // Touches comme au clavier : Z seul, Z+Q / Z+D en diagonale, ou pas de côté quand on est tout près.
+        float offset = MathHelper.wrapDegrees(moveYaw - mc.player.getYaw());
+        float abs = Math.abs(offset);
+        boolean forward = abs < 67.5f;
+        boolean side = abs > 22.5f && (abs < 67.5f || abs < 112.5f && horizontal < 1.5);
+        mc.options.forwardKey.setPressed(forward);
+        mc.options.leftKey.setPressed(side && offset < 0);
+        mc.options.rightKey.setPressed(side && offset > 0);
+
+        // Sprint en ligne droite quand il reste du chemin, on le relâche à l'approche.
+        boolean longWay = path.size() - pathIndex > 5 && player.distanceTo(Vec3d.ofCenter(target)) > 8;
+        mc.options.sprintKey.setPressed(forward && !side && longWay);
+
+        // Saute seulement au pied de la marche, ou si on bute contre quelque chose.
+        boolean climb = node.getY() > player.y + 0.5 && horizontal < 1.3;
+        mc.options.jumpKey.setPressed(mc.player.isOnGround() && (climb || forward && mc.player.horizontalCollision));
+
+        boolean moving = forward || side;
+        if (moving && lastPos != null && lastPos.squaredDistanceTo(player) < 0.0025) {
             if (++stuckTicks > STUCK_TICKS) {
                 stuckTicks = 0;
                 path = null;
@@ -343,6 +367,9 @@ public abstract class SchematicBotModule extends Module {
     private void releaseMovement() {
         if (mc.options == null) return;
         mc.options.forwardKey.setPressed(false);
+        mc.options.leftKey.setPressed(false);
+        mc.options.rightKey.setPressed(false);
+        mc.options.sprintKey.setPressed(false);
         mc.options.jumpKey.setPressed(false);
         KeyBinding.updatePressedStates();
     }
