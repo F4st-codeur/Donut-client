@@ -90,14 +90,24 @@ Ces deux bots travaillent sur le schéma chargé dans [Litematica](https://modri
 - *Identiques* : mine les blocs qui correspondent au schéma (pour démonter un build) ;
 - *Tout* : vide toute la zone.
 
-**SchemBuilder** construit en partant de la couche du bas, avec les blocs de ton inventaire. Il les ramène dans la hotbar si besoin et affiche « manque X » s'il lui manque un bloc. **Délai (ticks)** règle la vitesse de pose.
+**SchemBuilder** construit en partant de la couche du bas, avec les blocs de ton inventaire. Il les ramène dans la hotbar si besoin et affiche « manque X » s'il lui manque un bloc. **Délai (ticks)** règle le temps minimum entre deux poses (un peu de hasard s'y ajoute).
 
-**Orientation** : avant chaque pose, SchemBuilder simule la pose sous les 16 directions, en regardant devant, en haut ou en bas, sur chaque face d'appui et à deux hauteurs de clic. Il garde la combinaison qui donne la même orientation que dans le schéma : escaliers, bûches, fours, coffres, observateurs, pistons, hoppers, dalles haut/bas, trappes, leviers, boutons, panneaux, têtes, torches murales, etc. Il envoie ensuite cette rotation au serveur avant de poser. Les portes et les lits sont posés par leur moitié du bas ou leur pied, et l'autre moitié suit toute seule. Avec **Orientation stricte** (activé par défaut), un bloc impossible à orienter correctement est mis de côté au lieu d'être posé de travers.
+**Orientation** : avant chaque pose, SchemBuilder simule la pose en visant différents points des faces d'appui **visibles**. Il préfère regarder directement le point cliqué, comme un joueur ; si l'orientation l'exige, il tourne la caméra dans une autre direction (16 directions, plusieurs inclinaisons). Il garde la combinaison qui donne la même orientation que dans le schéma avec le mouvement de caméra le plus court : escaliers, bûches, fours, coffres, observateurs, pistons, hoppers, dalles haut/bas, trappes, leviers, boutons, panneaux, têtes, torches murales, etc. Juste avant de poser, il revérifie l'orientation avec la rotation réelle de la caméra. Les portes et les lits sont posés par leur moitié du bas ou leur pied, et l'autre moitié suit toute seule. Avec **Orientation stricte** (activé par défaut), un bloc impossible à orienter correctement est mis de côté au lieu d'être posé de travers.
+
+**Comportement humain** : les deux bots essaient d'agir comme un vrai joueur.
+- La caméra tourne **progressivement**, vite au début puis plus lentement, avec de petites imprécisions et des pas qui respectent la sensibilité de la souris. Pas de rotation instantanée ni de paquet de rotation envoyé à part : le bot n'agit qu'une fois que le serveur le voit viser le bon endroit.
+- Il ne mine ou ne pose que sur une face qu'il **voit** (rien entre ses yeux et le bloc). Il vise un point au hasard de la face, plutôt vers le milieu, et pas toujours au bout de sa portée.
+- En marchant, il tourne vers le chemin et regarde un peu vers le sol ; il n'avance que s'il regarde à peu près dans la bonne direction.
+- Il prend un **temps de réaction** avant chaque bloc (parfois plus long), attend un peu après avoir changé d'outil ou de slot, et prend le temps « d'ouvrir l'inventaire » avant d'aller chercher un bloc hors de la hotbar, puis le referme.
+- L'ordre des blocs varie un peu (toujours couche par couche).
+- **Pauses** (activé par défaut) : de temps en temps, une pause de 1,5 à 6 secondes.
+- **Vitesse visée** : vitesse maximale de la caméra, en degrés par tick (20 par défaut). Plus bas = plus naturel mais plus lent.
 
 **Pathfinding** : pour se déplacer, les bots utilisent l'algorithme A*. Ils calculent un chemin qui contourne les obstacles : marcher (y compris en diagonale), monter d'un bloc en sautant, descendre jusqu'à 3 blocs. Ils évitent la lave, le feu, les cactus, les toiles d'araignée et les autres blocs dangereux. Si la cible est trop loin pour un seul calcul, le bot avance vers le point le plus proche trouvé puis recalcule depuis là.
 
 Limites actuelles :
 - le bot ne nage pas et ne casse ni ne pose de blocs pour se frayer un chemin. Si aucun chemin n'existe, il passe à un autre bloc et réessaie plus tard ;
+- un bloc qu'il ne voit pas depuis l'endroit où il s'arrête est mis de côté et repris plus tard ;
 - les dalles doubles sont posées comme des dalles simples ;
 - n'active pas les deux bots en même temps ;
 - ouvrir un menu (inventaire, chat...) met le bot en pause.
