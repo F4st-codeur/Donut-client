@@ -32,4 +32,9 @@ public class FullbrightModule extends Module {
         // Contourne la validation 0..1 de SimpleOption#setValue.
         ((SimpleOptionAccessor) (Object) mc.options.getGamma()).donut$setValue(value);
     }
+
+    @Override
+    public boolean isLegit() {
+        return true;
+    }
 }

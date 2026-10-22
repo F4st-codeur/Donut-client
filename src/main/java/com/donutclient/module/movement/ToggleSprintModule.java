@@ -19,4 +19,9 @@ public class ToggleSprintModule extends Module {
         // Resynchronise les touches avec l'état réel du clavier.
         KeyBinding.updatePressedStates();
     }
+
+    @Override
+    public boolean isLegit() {
+        return true;
+    }
 }

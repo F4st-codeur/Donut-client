@@ -30,6 +30,7 @@ public final class Config {
             JsonObject root = JsonParser.parseString(Files.readString(PATH)).getAsJsonObject();
             JsonObject modules = root.getAsJsonObject("modules");
             if (modules == null) return;
+            boolean legitMode = root.has("legitMode") && root.get("legitMode").getAsBoolean();
             for (Module module : manager.getModules()) {
                 JsonObject entry = modules.getAsJsonObject(module.getName());
                 if (entry == null) continue;
@@ -42,6 +43,7 @@ public final class Config {
                 }
                 if (entry.has("enabled")) module.setEnabled(entry.get("enabled").getAsBoolean());
             }
+            manager.setLegitMode(legitMode);
         } catch (Exception e) {
             DonutClient.LOGGER.error("Impossible de lire la config, valeurs par défaut utilisées", e);
             applyDefaults(manager);
@@ -60,6 +62,7 @@ public final class Config {
             modules.add(module.getName(), entry);
         }
         JsonObject root = new JsonObject();
+        root.addProperty("legitMode", manager.isLegitMode());
         root.add("modules", modules);
         try {
             Files.createDirectories(PATH.getParent());

@@ -3,6 +3,7 @@ package com.donutclient.gui;
 import com.donutclient.DonutClient;
 import com.donutclient.module.Category;
 import com.donutclient.module.Module;
+import com.donutclient.module.ModuleManager;
 import com.donutclient.module.setting.Setting;
 import com.donutclient.util.ColorUtil;
 import com.donutclient.util.Config;
@@ -65,14 +66,18 @@ public class ClickGuiScreen extends Screen {
             dragging.y = mouseY - dragOffsetY;
         }
 
+        drawLegitCheckbox(context, mouseX, mouseY);
+
         Module hovered = null;
         for (Panel panel : PANELS) {
+            if (!panel.isVisible()) continue;
             Module m = panel.render(context, mouseX, mouseY);
             if (m != null) hovered = m;
         }
 
         String footer = binding != null
                 ? "Appuie sur une touche pour " + binding.getName() + " (Échap/Suppr = aucune)"
+                : isOverLegitCheckbox(mouseX, mouseY) ? "Mode legit : n'affiche et n'autorise que les modules legit (HUD, Fullbright, Zoom...)"
                 : hovered != null ? hovered.getDescription()
                 : "Clic gauche : activer  •  Clic droit : réglages  •  Glisser l'en-tête : déplacer";
         context.drawCenteredTextWithShadow(textRenderer, footer, width / 2, height - 20, 0xFFFFFFFF);
@@ -83,7 +88,13 @@ public class ClickGuiScreen extends Screen {
     public boolean mouseClicked(Click click, boolean doubled) {
         if (binding != null) return true;
         int button = click.button();
+        if (button == 0 && isOverLegitCheckbox(mouseX, mouseY)) {
+            ModuleManager manager = DonutClient.getModuleManager();
+            manager.setLegitMode(!manager.isLegitMode());
+            return true;
+        }
         for (Panel panel : PANELS) {
+            if (!panel.isVisible()) continue;
             if (panel.isOverHeader(mouseX, mouseY)) {
                 if (button == 0) {
                     dragging = panel;
@@ -108,6 +119,34 @@ public class ClickGuiScreen extends Screen {
             return true;
         }
         return super.mouseClicked(click, doubled);
+    }
+
+    private static final String LEGIT_LABEL = "Mode legit";
+    private static final int CHECKBOX_SIZE = 10;
+    private static final int CHECKBOX_Y = 8;
+
+    private int legitCheckboxX() {
+        int totalWidth = CHECKBOX_SIZE + 4 + textRenderer.getWidth(LEGIT_LABEL);
+        return (width - totalWidth) / 2;
+    }
+
+    private boolean isOverLegitCheckbox(int mx, int my) {
+        int x = legitCheckboxX();
+        int totalWidth = CHECKBOX_SIZE + 4 + textRenderer.getWidth(LEGIT_LABEL);
+        return mx >= x - 2 && mx < x + totalWidth + 2 && my >= CHECKBOX_Y - 2 && my < CHECKBOX_Y + CHECKBOX_SIZE + 2;
+    }
+
+    /** Case « Mode legit » en haut de l'écran : n'affiche que les modules legit. */
+    private void drawLegitCheckbox(DrawContext context, int mouseX, int mouseY) {
+        boolean checked = DonutClient.getModuleManager().isLegitMode();
+        boolean hover = isOverLegitCheckbox(mouseX, mouseY);
+        int x = legitCheckboxX();
+        int y = CHECKBOX_Y;
+        context.fill(x - 1, y - 1, x + CHECKBOX_SIZE + 1, y + CHECKBOX_SIZE + 1, hover ? 0xFFFFFFFF : 0xFFAAAAAA);
+        context.fill(x, y, x + CHECKBOX_SIZE, y + CHECKBOX_SIZE, 0xFF141414);
+        if (checked) context.fill(x + 2, y + 2, x + CHECKBOX_SIZE - 2, y + CHECKBOX_SIZE - 2, 0xFF55FF55);
+        context.drawTextWithShadow(textRenderer, LEGIT_LABEL, x + CHECKBOX_SIZE + 4, y + 1,
+                checked ? 0xFF55FF55 : 0xFFFFFFFF);
     }
 
     @Override
@@ -157,7 +196,7 @@ public class ClickGuiScreen extends Screen {
             List<Row> rows = new ArrayList<>();
             if (!expanded) return rows;
             int rowY = y + HEADER_HEIGHT;
-            for (Module module : DonutClient.getModuleManager().getByCategory(category)) {
+            for (Module module : DonutClient.getModuleManager().getVisible(category)) {
                 rows.add(new Row(module, null, false, rowY));
                 rowY += ROW_HEIGHT;
                 if (!EXPANDED.contains(module)) continue;
@@ -209,6 +248,11 @@ public class ClickGuiScreen extends Screen {
                 }
             }
             return hovered;
+        }
+
+        /** En mode legit, un panneau sans module visible (ex. : World) est caché. */
+        boolean isVisible() {
+            return !DonutClient.getModuleManager().getVisible(category).isEmpty();
         }
 
         boolean isOverHeader(int mx, int my) {

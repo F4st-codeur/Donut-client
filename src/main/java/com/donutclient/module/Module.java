@@ -61,6 +61,11 @@ public abstract class Module {
     public void onWorldRender(WorldRenderContext context) {
     }
 
+    /** Module « legit » : n'aide pas à tricher (HUD, confort, visuel). Seuls ceux-là restent en mode legit. */
+    public boolean isLegit() {
+        return category == Category.HUD;
+    }
+
     /** Info courte affichée à côté du nom dans l'ArrayList, ou {@code null}. */
     public String getInfo() {
         return null;

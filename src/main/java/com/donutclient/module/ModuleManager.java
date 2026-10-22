@@ -27,6 +27,7 @@ import java.util.List;
 
 public class ModuleManager {
     private final List<Module> modules = new ArrayList<>();
+    private boolean legitMode;
 
     public ModuleManager() {
         // HUD (l'ordre détermine l'empilement des lignes de texte)
@@ -60,7 +61,7 @@ public class ModuleManager {
         MinecraftClient mc = MinecraftClient.getInstance();
         for (Module module : modules) {
             int key = module.getKey();
-            if (key == GLFW.GLFW_KEY_UNKNOWN) continue;
+            if (key == GLFW.GLFW_KEY_UNKNOWN || (legitMode && !module.isLegit())) continue;
             boolean down = mc.currentScreen == null && InputUtil.isKeyPressed(mc.getWindow(), key);
             if (down && !module.keyWasDown) module.toggle();
             module.keyWasDown = down;
@@ -85,6 +86,24 @@ public class ModuleManager {
 
     public List<Module> getByCategory(Category category) {
         return modules.stream().filter(m -> m.getCategory() == category).toList();
+    }
+
+    /** Modules à afficher dans la ClickGUI : en mode legit, seulement les modules legit. */
+    public List<Module> getVisible(Category category) {
+        return modules.stream().filter(m -> m.getCategory() == category && (!legitMode || m.isLegit())).toList();
+    }
+
+    public boolean isLegitMode() {
+        return legitMode;
+    }
+
+    /** Active le mode legit : cache et coupe les modules non legit. */
+    public void setLegitMode(boolean legitMode) {
+        this.legitMode = legitMode;
+        if (!legitMode) return;
+        for (Module module : modules) {
+            if (!module.isLegit()) module.setEnabled(false);
+        }
     }
 
     public Module getByName(String name) {

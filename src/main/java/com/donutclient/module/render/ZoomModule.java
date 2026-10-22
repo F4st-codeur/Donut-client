@@ -18,4 +18,9 @@ public class ZoomModule extends Module {
     public float apply(float fov) {
         return isZooming() ? fov / FACTOR : fov;
     }
+
+    @Override
+    public boolean isLegit() {
+        return true;
+    }
 }

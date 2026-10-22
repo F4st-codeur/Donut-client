@@ -59,4 +59,9 @@ public class FakeMoneyModule extends Module {
         }, Style.EMPTY);
         return result;
     }
+
+    @Override
+    public boolean isLegit() {
+        return true;
+    }
 }
