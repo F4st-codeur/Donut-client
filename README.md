@@ -106,9 +106,9 @@ Limites actuelles :
 
 En haut de la ClickGUI, la case **Mode legit** n'affiche que les modules legit, ceux qui ne donnent pas d'avantage de triche :
 - tout le HUD ;
-- Fullbright, Zoom, ToggleSprint et FakeMoney.
+- Fullbright, Zoom et ToggleSprint.
 
-Quand tu la coches, les autres modules (ESP, BaseFinder, bots) sont **désactivés et cachés**, et leurs touches ne marchent plus. Décoche-la pour tout retrouver. Ce choix est sauvegardé.
+Quand tu la coches, les autres modules (ESP, BaseFinder, bots, Misc) sont **désactivés et cachés**, et leurs touches ne marchent plus. Décoche-la pour tout retrouver. Ce choix est sauvegardé.
 
 La configuration est sauvegardée dans `.minecraft/config/donutclient.json`.
 

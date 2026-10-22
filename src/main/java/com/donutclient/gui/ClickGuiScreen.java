@@ -77,7 +77,7 @@ public class ClickGuiScreen extends Screen {
 
         String footer = binding != null
                 ? "Appuie sur une touche pour " + binding.getName() + " (Échap/Suppr = aucune)"
-                : isOverLegitCheckbox(mouseX, mouseY) ? "Mode legit : n'affiche et n'autorise que les modules legit (HUD, Fullbright, Zoom...)"
+                : isOverLegitCheckbox(mouseX, mouseY) ? "Mode legit : n'affiche et n'autorise que les modules legit (HUD, Fullbright, Zoom, ToggleSprint)"
                 : hovered != null ? hovered.getDescription()
                 : "Clic gauche : activer  •  Clic droit : réglages  •  Glisser l'en-tête : déplacer";
         context.drawCenteredTextWithShadow(textRenderer, footer, width / 2, height - 20, 0xFFFFFFFF);
