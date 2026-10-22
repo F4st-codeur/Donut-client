@@ -10,10 +10,12 @@ import com.donutclient.module.hud.WatermarkModule;
 import com.donutclient.module.misc.FakeMoneyModule;
 import com.donutclient.module.movement.ToggleSprintModule;
 import com.donutclient.module.render.ChestEspModule;
+import com.donutclient.module.render.FreecamModule;
 import com.donutclient.module.render.FullbrightModule;
 import com.donutclient.module.render.PlayerEspModule;
 import com.donutclient.module.render.ZoomModule;
 import com.donutclient.module.world.BaseFinderModule;
+import com.donutclient.module.world.BaseScannerModule;
 import com.donutclient.module.world.SchemBuilderModule;
 import com.donutclient.module.world.SchemDiggerModule;
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
@@ -43,8 +45,10 @@ public class ModuleManager {
         add(new ZoomModule());
         add(new ChestEspModule());
         add(new PlayerEspModule());
+        add(new FreecamModule());
         // World
         add(new BaseFinderModule());
+        add(new BaseScannerModule());
         add(new SchemDiggerModule());
         add(new SchemBuilderModule());
         // Movement

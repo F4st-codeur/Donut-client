@@ -19,7 +19,9 @@ Le mod contient surtout des fonctionnalités de confort (HUD, rendu). Le module 
 | Render | Zoom | Maintiens **C** pour zoomer |
 | Render | ChestESP | Surligne coffres, ender chests, shulkers, barils (à travers les murs) |
 | Render | PlayerESP | Montre les autres joueurs à travers les murs (contour et/ou boîte) |
+| Render | Freecam | Caméra libre, ton personnage reste sur place |
 | World | BaseFinder | Surligne le kelp qui a poussé et l'améthyste |
+| World | BaseScanner | Analyse les chunks et repère les bases (coffres, hoppers, shulkers...) |
 | World | SchemDigger | Bot qui mine tout seul le schéma Litematica chargé |
 | World | SchemBuilder | Bot qui construit tout seul le schéma Litematica chargé |
 | Movement | ToggleSprint | Sprint automatique |
@@ -66,6 +68,35 @@ Réglages :
   - *Tous les $* : tous les montants en `$`.
 
 Les messages du chat ne sont pas modifiés.
+
+### BaseScanner
+
+Toutes les secondes, BaseScanner analyse les chunks chargés et donne à chacun un score selon ce qu'il contient :
+
+| Bloc | Points |
+|---|---|
+| Beacon | 10 |
+| Shulker | 5 |
+| Table d'enchantement | 4 |
+| Hopper, ender chest, alambic | 3 |
+| Coffre, baril, four, lit | 2 |
+| Dispenser/dropper, panneau, bannière | 1 |
+
+Un spawner naturel avec ses coffres de donjon fait baisser le score, pour éviter les faux positifs. Au-dessus du **Seuil** (20 par défaut), le chunk est considéré comme une base :
+- il est surligné en rouge, sur la hauteur des blocs trouvés ;
+- un message dans le chat donne ses coordonnées et son contenu.
+
+Baisse le seuil pour détecter les petites bases, monte-le si les villages ou les épaves sont signalés à tort.
+
+### Freecam
+
+La caméra se détache de ton personnage, qui reste immobile :
+- **avancer, reculer, gauche, droite** : touches de déplacement habituelles (ZQSD/WASD) ;
+- **monter** : espace ;
+- **descendre** : shift ;
+- **aller plus vite** : touche de sprint.
+
+La souris oriente la caméra, et la vitesse se règle dans les réglages du module. Tu ne vois que les chunks déjà chargés autour de ton personnage. Évite de casser ou d'utiliser des blocs pendant la freecam : le clic part de la caméra et le serveur risque de le refuser.
 
 ### BaseFinder
 
