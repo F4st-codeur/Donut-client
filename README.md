@@ -124,7 +124,7 @@ Quand FakePay est activé, la commande `/pay` **n'est plus envoyée au serveur**
 > **[FakePay] Simulation :** *tu prétends envoyer $1,000,000 à Pseudo !*
 
 - Le préfixe violet **[FakePay] Simulation** est toujours affiché : la notification ne peut pas être confondue avec un vrai message du serveur.
-- Le réglage **Message** propose trois textes : *Prétend*, *Rêve* et *Radin*.
+- Le réglage **Message** propose quatre textes : *Prétend*, *Rêve*, *Radin* et *Pour de faux* (« $1,000,000 ont été envoyés pour de faux à Pseudo. »).
 - Les montants acceptés sont `1000`, `1,000,000`, `2.5k`, `1m`, `3b`…
 - `/pay` sans arguments affiche l'utilisation. Un pseudo ou un montant invalide affiche une erreur. Dans tous ces cas, rien n'est envoyé.
 - Les autres commandes, y compris `/payall` ou `/msg`, ne sont pas touchées.

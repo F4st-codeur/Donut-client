@@ -16,8 +16,9 @@ public class FakePayModule extends Module {
     private static final String PRETEND = "Prétend";
     private static final String DREAM = "Rêve";
     private static final String STINGY = "Radin";
+    private static final String FAKE = "Pour de faux";
 
-    private final ModeSetting message = add(new ModeSetting("Message", PRETEND, PRETEND, DREAM, STINGY));
+    private final ModeSetting message = add(new ModeSetting("Message", PRETEND, PRETEND, DREAM, STINGY, FAKE));
 
     public FakePayModule() {
         super("FakePay", "Bloque /pay et affiche une simulation humoristique (rien n'est envoyé).", Category.MISC);
@@ -44,6 +45,8 @@ public class FakePayModule extends Module {
         return switch (message.get()) {
             case DREAM -> "dans tes rêves, tu envoies $" + amount + " à " + player + ".";
             case STINGY -> "$" + amount + " pour " + player + " ? Même pas en rêve, rien n'a été envoyé.";
+            // « pour de faux » au milieu de la phrase : on ne peut pas le retirer en recadrant une capture.
+            case FAKE -> "$" + amount + " ont été envoyés pour de faux à " + player + ".";
             default -> "tu prétends envoyer $" + amount + " à " + player + " !";
         };
     }
