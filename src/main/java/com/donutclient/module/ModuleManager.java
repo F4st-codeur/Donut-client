@@ -18,6 +18,7 @@ import com.donutclient.module.render.PlayerEspModule;
 import com.donutclient.module.render.ZoomModule;
 import com.donutclient.module.world.BaseFinderModule;
 import com.donutclient.module.world.BaseScannerModule;
+import com.donutclient.module.world.FastMineModule;
 import com.donutclient.module.world.SchemBuilderModule;
 import com.donutclient.module.world.SchemDiggerModule;
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext;
@@ -51,6 +52,7 @@ public class ModuleManager {
         // World
         add(new BaseFinderModule());
         add(new BaseScannerModule());
+        add(new FastMineModule());
         add(new SchemDiggerModule());
         add(new SchemBuilderModule());
         // Movement

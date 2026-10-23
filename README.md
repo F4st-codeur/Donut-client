@@ -22,6 +22,7 @@ Le mod contient surtout des fonctionnalités de confort (HUD, rendu). Le module 
 | Render | Freecam | Caméra libre, ton personnage reste sur place |
 | World | BaseFinder | Surligne le kelp qui a poussé et l'améthyste |
 | World | BaseScanner | Analyse les chunks et repère les bases (coffres, hoppers, shulkers...) |
+| World | FastMine | Mine plus vite (vitesse réglable, sans délai entre les blocs) |
 | World | SchemDigger | Bot qui mine tout seul le schéma Litematica chargé |
 | World | SchemBuilder | Bot qui construit tout seul le schéma Litematica chargé |
 | Movement | ToggleSprint | Sprint automatique |
@@ -70,6 +71,14 @@ Réglages :
   - *Tous les $* : tous les montants en `$`.
 
 Les messages du chat ne sont pas modifiés.
+
+### FastMine
+
+FastMine accélère le minage. Il a deux réglages :
+- **Vitesse (%)**, de 100 à 300 % (130 % par défaut) : chaque tick, il ajoute de la progression de minage en plus de celle du jeu ;
+- **Sans délai** : supprime la pause d'environ 5 ticks entre deux blocs cassés.
+
+En solo, toutes les vitesses marchent. Sur un serveur, celui-ci vérifie le temps de minage : au-delà d'environ 130 %, il annule les blocs cassés trop vite et ils réapparaissent. L'ArrayList affiche la vitesse choisie.
 
 ### BaseScanner
 

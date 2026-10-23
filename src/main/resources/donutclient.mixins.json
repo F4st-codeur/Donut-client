@@ -4,6 +4,7 @@
   "package": "com.donutclient.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "ClientPlayerInteractionManagerAccessor",
     "DrawContextMixin",
     "EntityMixin",
     "GameRendererMixin",
