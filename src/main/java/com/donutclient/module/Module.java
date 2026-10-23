@@ -67,7 +67,7 @@ public abstract class Module {
     }
 
     /**
-     * Appelé avant l'envoi d'une commande au serveur (sans le slash).
+     * Appelé avant l'envoi d'une commande au serveur (sans le slash) quand le module est actif.
      * Renvoie {@code true} pour bloquer l'envoi.
      */
     public boolean onCommand(String command) {

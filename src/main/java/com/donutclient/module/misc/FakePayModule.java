@@ -2,67 +2,57 @@ package com.donutclient.module.misc;
 
 import com.donutclient.module.Category;
 import com.donutclient.module.Module;
-import net.minecraft.client.MinecraftClient;
+import com.donutclient.module.setting.ModeSetting;
+import com.donutclient.util.PayCommandParser;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
-import java.text.DecimalFormat;
-import java.util.Locale;
-
 /**
- * FakePay est un troll visuel local : il reproduit un faux retour de paiement
- * côté client sans jamais envoy er une vraie commande de paiement au serveur.
+ * Quand il est actif, "/pay" n'est plus envoyé au serveur : le client affiche à la place une notification
+ * humoristique, toujours marquée « [FakePay] Simulation » pour ne pas ressembler à un vrai paiement.
  */
 public class FakePayModule extends Module {
+    private static final String PRETEND = "Prétend";
+    private static final String DREAM = "Rêve";
+    private static final String STINGY = "Radin";
+
+    private final ModeSetting message = add(new ModeSetting("Message", PRETEND, PRETEND, DREAM, STINGY));
+
     public FakePayModule() {
-        super("FakePay", "Simule un paiement localement sans toucher à l'économie du serveur.", Category.MISC);
+        super("FakePay", "Bloque /pay et affiche une simulation humoristique (rien n'est envoyé).", Category.MISC);
     }
 
+    /** Renvoie {@code true} si la commande est une commande /pay interceptée (donc à ne pas envoyer). */
     @Override
     public boolean onCommand(String command) {
-        if (!isEnabled()) return false;
-
-        String trimmed = command == null ? "" : command.trim();
-        if (trimmed.isEmpty()) return false;
-
-        String[] parts = trimmed.split("\\s+");
-        if (parts.length != 3 || !parts[0].equalsIgnoreCase("pay")) {
-            return false;
+        PayCommandParser.Result result = PayCommandParser.parse(command);
+        switch (result.status()) {
+            case NOT_PAY -> {
+                return false;
+            }
+            case USAGE -> notify(Text.literal("Utilisation : /pay <pseudo> <montant>").formatted(Formatting.RED));
+            case INVALID_PLAYER -> notify(Text.literal("Pseudo invalide : " + result.player()).formatted(Formatting.RED));
+            case INVALID_AMOUNT -> notify(Text.literal("Montant invalide (exemples : 1000, 1,000,000, 2.5k, 1m)").formatted(Formatting.RED));
+            case OK -> notify(Text.literal(body(result.formattedAmount(), result.player())).formatted(Formatting.GRAY, Formatting.ITALIC));
         }
-
-        int amount;
-        try {
-            amount = Integer.parseInt(parts[2]);
-        } catch (NumberFormatException ignored) {
-            return false;
-        }
-
-        String player = parts[1];
-        showPayment(mc, player, amount);
+        // Tant que le module est actif, aucune commande /pay ne part, même invalide.
         return true;
     }
 
-    static void showPayment(MinecraftClient client, String player, int amount) {
-        if (client == null) return;
-
-        String target = player == null || player.isBlank() ? "Steve" : player;
-        String formattedAmount = formatAmount(amount);
-        Text message = Text.literal("you paid" + target + " to " + formatAmount)
-                .formatted(Formatting.GOLD, Formatting.BOLD);
-
-        if (client.inGameHud != null) {
-            client.inGameHud.setOverlayMessage(message, false);
-        }
-
-        if (client.player != null) {
-            client.player.sendMessage(message, false);
-        } else if (client.inGameHud != null) {
-            client.inGameHud.getChatHud().addMessage(message);
-        }
+    private String body(String amount, String player) {
+        return switch (message.get()) {
+            case DREAM -> "dans tes rêves, tu envoies $" + amount + " à " + player + ".";
+            case STINGY -> "$" + amount + " pour " + player + " ? Même pas en rêve, rien n'a été envoyé.";
+            default -> "tu prétends envoyer $" + amount + " à " + player + " !";
+        };
     }
 
-    private static String formatAmount(int amount) {
-        DecimalFormat formatter = new DecimalFormat("#,##0");
-        return formatter.format(amount).replace(',', '.');
+    /** Préfixe fixe et coloré, impossible à retirer : la notification ne peut pas passer pour un message du serveur. */
+    private void notify(Text content) {
+        MutableText text = Text.literal("[FakePay] ").formatted(Formatting.LIGHT_PURPLE, Formatting.BOLD)
+                .append(Text.literal("Simulation : ").formatted(Formatting.YELLOW))
+                .append(content);
+        mc.inGameHud.getChatHud().addMessage(text);
     }
 }

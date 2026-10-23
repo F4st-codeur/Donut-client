@@ -57,8 +57,8 @@ public class ModuleManager {
         add(new ToggleSprintModule());
         // Misc
         add(new FakeMoneyModule());
-        add(new FakePayModule());
         add(new TexturePackModule());
+        add(new FakePayModule());
     }
 
     private void add(Module module) {
@@ -81,19 +81,19 @@ public class ModuleManager {
         }
     }
 
-    public void onWorldRender(WorldRenderContext context) {
-        if (MinecraftClient.getInstance().player == null) return;
-        for (Module module : modules) {
-            if (module.isEnabled()) module.onWorldRender(context);
-        }
-    }
-
     /** Renvoie {@code false} si un module actif bloque l'envoi de cette commande. */
     public boolean allowCommand(String command) {
         for (Module module : modules) {
             if (module.isEnabled() && module.onCommand(command)) return false;
         }
         return true;
+    }
+
+    public void onWorldRender(WorldRenderContext context) {
+        if (MinecraftClient.getInstance().player == null) return;
+        for (Module module : modules) {
+            if (module.isEnabled()) module.onWorldRender(context);
+        }
     }
 
     public List<Module> getModules() {
