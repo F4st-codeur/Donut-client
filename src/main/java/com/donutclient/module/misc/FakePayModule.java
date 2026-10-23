@@ -83,7 +83,7 @@ public class FakePayModule extends Module {
                                         return 0;
                                     }
                                     String player = StringArgumentType.getString(context, "player");
-                                    int amount = IntegerArgumentType.getInt(context, "amount");
+                                    int amount = IntegerArgumentType.getInteger(context, "amount");
                                     showPayment(MinecraftClient.getInstance(), player, amount);
                                     return 1;
                                 }))));
