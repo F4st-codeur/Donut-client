@@ -2,45 +2,43 @@ package com.donutclient.module.misc;
 
 import com.donutclient.module.Category;
 import com.donutclient.module.Module;
-import com.donutclient.module.ModuleManager;
-import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
-import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
-import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
-import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
+import java.text.DecimalFormat;
+import java.util.Locale;
 
 /**
- * Intercepte /pay quand le module est actif : aucun argent n'est envoyé au serveur.
- * Quand le module est désactivé, la commande /pay fonctionne normalement.
+ * FakePay est un troll visuel local : il reproduit un faux retour de paiement
+ * côté client sans jamais envoy er une vraie commande de paiement au serveur.
  */
 public class FakePayModule extends Module {
     public FakePayModule() {
-        super("FakePay", "Simule /pay localement sans envoyer d'argent au serveur.", Category.MISC);
+        super("FakePay", "Simule un paiement localement sans toucher à l'économie du serveur.", Category.MISC);
     }
 
     @Override
     public boolean onCommand(String command) {
-        String[] parts = command.trim().split("\\s+");
-        if (parts.length == 0 || !parts[0].equalsIgnoreCase("pay")) return false;
+        if (!isEnabled()) return false;
 
-        if (parts.length != 3) {
-            feedback(Text.literal("Utilisation : /pay <pseudo> <montant>").formatted(Formatting.RED));
-            return true;
+        String trimmed = command == null ? "" : command.trim();
+        if (trimmed.isEmpty()) return false;
+
+        String[] parts = trimmed.split("\\s+");
+        if (parts.length != 3 || !parts[0].equalsIgnoreCase("pay")) {
+            return false;
         }
 
+        int amount;
         try {
-            int amount = Integer.parseInt(parts[2]);
-            if (amount < 0) throw new NumberFormatException();
-            showPayment(mc, parts[1], amount);
-        } catch (NumberFormatException exception) {
-            feedback(Text.literal("Montant invalide : " + parts[2]).formatted(Formatting.RED));
+            amount = Integer.parseInt(parts[2]);
+        } catch (NumberFormatException ignored) {
+            return false;
         }
 
+        String player = parts[1];
+        showPayment(mc, player, amount);
         return true;
     }
 
@@ -48,65 +46,23 @@ public class FakePayModule extends Module {
         if (client == null) return;
 
         String target = player == null || player.isBlank() ? "Steve" : player;
-        Text overlay = Text.literal("You paid " + target + " $" + amount)
-                .formatted(Formatting.GOLD, Formatting.BOLD);
-        Text chatMessage = Text.literal("[FakePay] You paid " + target + " $" + amount)
+        String formattedAmount = formatAmount(amount);
+        Text message = Text.literal("Successfully sent $" + formattedAmount + " to " + target)
                 .formatted(Formatting.GOLD, Formatting.BOLD);
 
         if (client.inGameHud != null) {
-            client.inGameHud.setOverlayMessage(overlay, false);
+            client.inGameHud.setOverlayMessage(message, false);
         }
+
         if (client.player != null) {
-            client.player.sendMessage(chatMessage, false);
+            client.player.sendMessage(message, false);
         } else if (client.inGameHud != null) {
-            client.inGameHud.getChatHud().addMessage(chatMessage);
+            client.inGameHud.getChatHud().addMessage(message);
         }
     }
 
-    private static void feedback(Text message) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.inGameHud != null) client.inGameHud.getChatHud().addMessage(message);
-    }
-
-    public static void registerCommands(CommandDispatcher<FabricClientCommandSource> dispatcher, ModuleManager manager) {
-        dispatcher.register(literal("fakepay")
-                .executes(context -> toggle(context.getSource(), manager))
-                .then(literal("toggle").executes(context -> toggle(context.getSource(), manager)))
-                .then(literal("on").executes(context -> setEnabled(context.getSource(), manager, true)))
-                .then(literal("off").executes(context -> setEnabled(context.getSource(), manager, false)))
-                .then(argument("player", StringArgumentType.word())
-                        .then(argument("amount", IntegerArgumentType.integer(0))
-                                .executes(context -> {
-                                    FakePayModule module = manager.get(FakePayModule.class);
-                                    if (module == null || !module.isEnabled()) {
-                                        context.getSource().sendFeedback(Text.literal("Activez FakePay avec /fakepay on.").formatted(Formatting.RED));
-                                        return 0;
-                                    }
-                                    String player = StringArgumentType.getString(context, "player");
-                                    int amount = IntegerArgumentType.getInteger(context, "amount");
-                                    showPayment(MinecraftClient.getInstance(), player, amount);
-                                    return 1;
-                                }))));
-    }
-
-    private static int toggle(FabricClientCommandSource source, ModuleManager manager) {
-        FakePayModule module = manager.get(FakePayModule.class);
-        if (module == null) return 0;
-        module.toggle();
-        source.sendFeedback(status(module));
-        return 1;
-    }
-
-    private static int setEnabled(FabricClientCommandSource source, ModuleManager manager, boolean enabled) {
-        FakePayModule module = manager.get(FakePayModule.class);
-        if (module == null) return 0;
-        module.setEnabled(enabled);
-        source.sendFeedback(status(module));
-        return 1;
-    }
-
-    private static Text status(FakePayModule module) {
-        return Text.literal("FakePay " + (module.isEnabled() ? "activé" : "désactivé"))
-                .formatted(module.isEnabled() ? Formatting.GREEN : Formatting.GRAY);
+    private static String formatAmount(int amount) {
+        DecimalFormat formatter = new DecimalFormat("#,##0");
+        return formatter.format(amount).replace(',', '.');
     }
 }
