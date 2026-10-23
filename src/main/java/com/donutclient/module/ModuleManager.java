@@ -8,6 +8,7 @@ import com.donutclient.module.hud.KeystrokesModule;
 import com.donutclient.module.hud.PingModule;
 import com.donutclient.module.hud.WatermarkModule;
 import com.donutclient.module.misc.FakeMoneyModule;
+import com.donutclient.module.misc.FakePayModule;
 import com.donutclient.module.misc.TexturePackModule;
 import com.donutclient.module.movement.ToggleSprintModule;
 import com.donutclient.module.render.ChestEspModule;
@@ -56,6 +57,7 @@ public class ModuleManager {
         add(new ToggleSprintModule());
         // Misc
         add(new FakeMoneyModule());
+        add(new FakePayModule());
         add(new TexturePackModule());
     }
 
@@ -84,6 +86,14 @@ public class ModuleManager {
         for (Module module : modules) {
             if (module.isEnabled()) module.onWorldRender(context);
         }
+    }
+
+    /** Renvoie {@code false} si un module actif bloque l'envoi de cette commande. */
+    public boolean allowCommand(String command) {
+        for (Module module : modules) {
+            if (module.isEnabled() && module.onCommand(command)) return false;
+        }
+        return true;
     }
 
     public List<Module> getModules() {

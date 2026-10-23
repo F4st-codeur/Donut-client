@@ -3,11 +3,14 @@ package com.donutclient;
 import com.donutclient.gui.ClickGuiScreen;
 import com.donutclient.gui.HudRenderer;
 import com.donutclient.module.ModuleManager;
+import com.donutclient.module.misc.FakePayModule;
 import com.donutclient.util.Config;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents;
 import net.minecraft.client.option.KeyBinding;
@@ -47,6 +50,8 @@ public class DonutClient implements ClientModInitializer {
 
         HudElementRegistry.addLast(Identifier.of(MOD_ID, "hud"), (context, tickCounter) -> HudRenderer.render(context));
         WorldRenderEvents.BEFORE_TRANSLUCENT.register(moduleManager::onWorldRender);
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, access) -> FakePayModule.registerCommands(dispatcher, moduleManager));
+        ClientSendMessageEvents.ALLOW_COMMAND.register(moduleManager::allowCommand);
 
         ClientLifecycleEvents.CLIENT_STOPPING.register(client -> Config.save(moduleManager));
 
