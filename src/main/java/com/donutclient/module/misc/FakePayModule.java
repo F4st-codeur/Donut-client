@@ -47,7 +47,7 @@ public class FakePayModule extends Module {
 
         String target = player == null || player.isBlank() ? "Steve" : player;
         String formattedAmount = formatAmount(amount);
-        Text message = Text.literal("Successfully sent $" + formattedAmount + " to " + target)
+        Text message = Text.literal("you paid" + target + " to " + formatAmount)
                 .formatted(Formatting.GOLD, Formatting.BOLD);
 
         if (client.inGameHud != null) {
