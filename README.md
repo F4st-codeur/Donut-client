@@ -26,6 +26,7 @@ Le mod contient surtout des fonctionnalités de confort (HUD, rendu). Le module 
 | World | SchemBuilder | Bot qui construit tout seul le schéma Litematica chargé |
 | Movement | ToggleSprint | Sprint automatique |
 | Misc | FakeMoney | Affiche un faux solde sur ton écran (visuel uniquement) |
+| Misc | TexturePack | Change l'apparence de certains items sur ton écran (visuel uniquement) |
 
 ### Commandes
 
@@ -97,6 +98,14 @@ La caméra se détache de ton personnage, qui reste immobile :
 - **aller plus vite** : touche de sprint.
 
 La souris oriente la caméra, et la vitesse se règle dans les réglages du module. Tu ne vois que les chunks déjà chargés autour de ton personnage. Évite de casser ou d'utiliser des blocs pendant la freecam : le clic part de la caméra et le serveur risque de le refuser.
+
+### TexturePack
+
+Change l'apparence de certains items, **sur ton écran uniquement**. Chaque remplacement s'active dans les réglages :
+- **Plastron maille > Elytra** : les plastrons en cotte de mailles s'affichent comme des élytres ;
+- **Cornichon > Spawner** : les cornichons de mer s'affichent comme des spawners.
+
+Le changement s'applique dans l'inventaire, en main et sur les items au sol. Les items restent ce qu'ils sont : le nom, la description au survol et ce que voient le serveur et les autres joueurs ne changent pas. Un plastron porté sur le corps garde aussi son apparence de cotte de mailles.
 
 ### BaseFinder
 

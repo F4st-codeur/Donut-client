@@ -8,6 +8,7 @@ import com.donutclient.module.hud.KeystrokesModule;
 import com.donutclient.module.hud.PingModule;
 import com.donutclient.module.hud.WatermarkModule;
 import com.donutclient.module.misc.FakeMoneyModule;
+import com.donutclient.module.misc.TexturePackModule;
 import com.donutclient.module.movement.ToggleSprintModule;
 import com.donutclient.module.render.ChestEspModule;
 import com.donutclient.module.render.FreecamModule;
@@ -55,6 +56,7 @@ public class ModuleManager {
         add(new ToggleSprintModule());
         // Misc
         add(new FakeMoneyModule());
+        add(new TexturePackModule());
     }
 
     private void add(Module module) {
