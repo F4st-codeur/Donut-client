@@ -66,6 +66,14 @@ public abstract class Module {
         return category == Category.HUD;
     }
 
+    /**
+     * Appelé avant l'envoi d'une commande au serveur (sans le slash) quand le module est actif.
+     * Renvoie {@code true} pour bloquer l'envoi.
+     */
+    public boolean onCommand(String command) {
+        return false;
+    }
+
     /** Info courte affichée à côté du nom dans l'ArrayList, ou {@code null}. */
     public String getInfo() {
         return null;

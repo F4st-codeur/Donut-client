@@ -27,6 +27,7 @@ Le mod contient surtout des fonctionnalités de confort (HUD, rendu). Le module 
 | Movement | ToggleSprint | Sprint automatique |
 | Misc | FakeMoney | Affiche un faux solde sur ton écran (visuel uniquement) |
 | Misc | TexturePack | Change l'apparence de certains items sur ton écran (visuel uniquement) |
+| Misc | PaySimulator | Bloque /pay et affiche une simulation humoristique (rien n'est envoyé) |
 
 ### Commandes
 
@@ -107,6 +108,19 @@ Change l'apparence de certains items, **sur ton écran uniquement**. Chaque remp
 
 Le changement s'applique dans l'inventaire, en main et sur les items au sol. Les items restent ce qu'ils sont : le nom, la description au survol et ce que voient le serveur et les autres joueurs ne changent pas. Un plastron porté sur le corps garde aussi son apparence de cotte de mailles.
 
+### PaySimulator
+
+Quand PaySimulator est activé, la commande `/pay` **n'est plus envoyée au serveur**. Le client l'intercepte juste avant l'envoi et affiche à la place une notification dans ton chat. Exemple :
+
+> **[PaySimulator] Simulation :** *tu prétends envoyer $1,000,000 à Pseudo !*
+
+- Le préfixe violet **[PaySimulator] Simulation** est toujours affiché : la notification ne peut pas être confondue avec un vrai message du serveur.
+- Le réglage **Message** propose trois textes : *Prétend*, *Rêve* et *Radin*.
+- Les montants acceptés sont `1000`, `1,000,000`, `2.5k`, `1m`, `3b`…
+- `/pay` sans arguments affiche l'utilisation. Un pseudo ou un montant invalide affiche une erreur. Dans tous ces cas, rien n'est envoyé.
+- Les autres commandes, y compris `/payall` ou `/msg`, ne sont pas touchées.
+- Quand le module est désactivé, `/pay` fonctionne normalement.
+
 ### BaseFinder
 
 Les plantes ne poussent que dans les chunks chargés, donc près d'un joueur. Plus elles ont grandi, plus quelqu'un est resté longtemps à côté.
@@ -167,6 +181,8 @@ Prérequis : un **JDK 21**.
 # Construire le .jar
 ./gradlew build
 ```
+
+`./gradlew build` lance aussi les tests unitaires (`./gradlew test` pour les lancer seuls).
 
 Le jar se trouve ensuite dans `build/libs/donut-client-1.1.0.jar`. Pour l'utiliser dans ton vrai jeu :
 
